@@ -1,3 +1,10 @@
+import java.util.logging.Logger
+import java.util.logging.ConsoleHandler
+import java.util.logging.SimpleFormatter
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.logging.LogRecord
+
 fun calculateDryAndCombustibleMassCoefficients(wr: Double, ar: Double): Pair<Double, Double> {
     val krs = 100.0 / (100.0 - wr)
     val krg = 100.0 / (100.0 - wr - ar)
@@ -24,10 +31,18 @@ fun adjustHeatingValueForMass(qr: Double, wr: Double, krs: Double, krg: Double):
     return Pair(qd / 1000.0, qg / 1000.0) // Convert to MJ/kg
 }
 
-import java.util.logging.Logger
-
 fun main() {
     val logger = Logger.getLogger("MassLogger")
+    logger.useParentHandlers = false
+    val handler = ConsoleHandler()
+    handler.formatter = object : SimpleFormatter() {
+        override fun format(record: LogRecord): String {
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            return "[${dateFormat.format(Date(record.millis))} ${record.level}] ${record.message}\n"
+        }
+    }
+    logger.addHandler(handler)
+    
     // Task 1: Variant 3 data
     val hr = 3.8
     val cr = 62.4

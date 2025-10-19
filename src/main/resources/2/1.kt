@@ -1,4 +1,9 @@
 import java.util.logging.Logger
+import java.util.logging.ConsoleHandler
+import java.util.logging.SimpleFormatter
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.logging.LogRecord
 
 fun calculateEmissionFactor(Qri: Double, Ar: Double, aVin: Double, etaZu: Double, GVin: Double): Double {
     return (1000000.0 / Qri) * (Ar / 100.0) * aVin * (1 - etaZu) / (1 - GVin / 100.0)
@@ -10,6 +15,16 @@ fun calculateGrossEmission(k: Double, B: Double, Qri: Double): Double {
 
 fun main() {
     val logger = Logger.getLogger("EmissionLogger")
+    logger.useParentHandlers = false
+    val handler = ConsoleHandler()
+    handler.formatter = object : SimpleFormatter() {
+        override fun format(record: LogRecord): String {
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            return "[${dateFormat.format(Date(record.millis))} ${record.level}] ${record.message}\n"
+        }
+    }
+    logger.addHandler(handler)
+    
     // Constants
     val etaZu = 0.985 // Efficiency of dust collection
     val Qc = 32.68 // Heat of carbon combustion to CO2, MJ/kg

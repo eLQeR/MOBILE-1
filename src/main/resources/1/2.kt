@@ -1,3 +1,10 @@
+import java.util.logging.Logger
+import java.util.logging.ConsoleHandler
+import java.util.logging.SimpleFormatter
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.logging.LogRecord
+
 fun calculateWorkingMassComposition(cg: Double, hg: Double, og: Double, sg: Double, wr: Double, ad: Double): List<Double> {
     val ar = ad * (100.0 - wr) / 100.0
     val multiplier = (100.0 - wr - ad) / 100.0
@@ -15,10 +22,18 @@ fun calculateWorkingHeatingValue(qgMj: Double, wr: Double, ad: Double): Double {
     return qgMj * multiplier - 0.025 * wr
 }
 
-import java.util.logging.Logger
-
 fun main() {
     val logger = Logger.getLogger("WorkingMassLogger")
+    logger.useParentHandlers = false
+    val handler = ConsoleHandler()
+    handler.formatter = object : SimpleFormatter() {
+        override fun format(record: LogRecord): String {
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            return "[${dateFormat.format(Date(record.millis))} ${record.level}] ${record.message}\n"
+        }
+    }
+    logger.addHandler(handler)
+    
     // Task 2: Control example data adapted for Variant 3 context
     val cg = 85.50
     val hg = 11.20
@@ -36,3 +51,4 @@ fun main() {
     logger.info("Task 2 Results using Control Example adapted for Variant 3:")
     logger.info("Working mass composition: H= ${String.format("%.2f", workingComposition[1])}%, C= ${String.format("%.2f", workingComposition[0])}%, S= ${String.format("%.2f", workingComposition[3])}%, O= ${String.format("%.2f", workingComposition[2])}%, A= ${String.format("%.2f", workingComposition[4])}%, V= ${String.format("%.2f", vr)} mg/kg")
     logger.info("Lower heating value (working): ${String.format("%.2f", qrMj)} MJ/kg")
+}
